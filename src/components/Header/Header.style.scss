@@ -1,0 +1,70 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.7rem;
+
+  background-color: $menu-bg-color;
+  color: $secondary-text-color;
+  max-width: 75rem;
+  box-sizing: border-box;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.header-menu {
+  list-style: none;
+  display: flex;
+  gap: 1.5rem;
+  padding: 0;
+  margin: 0;
+}
+
+.header-menu-item {
+  cursor: pointer;
+  position: relative;
+  transition: $transition;
+  border-radius: 0.3rem;
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+
+  a {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    color: $main-text-color;
+  }
+
+  &:hover {
+    color: $main-text-color;
+    background-color: $secondary-bg-color;
+  }
+
+  &:active {
+    transform: translateY(0.125rem);
+  }
+}
+
+.header-players {
+  padding: 0.4rem 0.75rem;
+  border-radius: 0.3rem;
+  background-color: $secondary-bg-color;
+
+  &-label {
+    font-size: 1rem;
+    color: $secondary-text-color;
+    margin-right: 0.5rem;
+  }
+
+  &-count {
+    color: $accent-text-color;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover {
+      color: $accent-text-color;
+    }
+  }
+}
