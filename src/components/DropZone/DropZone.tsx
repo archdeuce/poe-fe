@@ -1,8 +1,8 @@
-import "./DropZone.style.scss";
+import './DropZone.style.scss';
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import { useDropzone } from "react-dropzone";
+import { useDropzone } from 'react-dropzone';
 
 interface DropZoneProps {
   onDrop: (file: File) => void;
@@ -23,25 +23,35 @@ const DropZone: React.FC<DropZoneProps> = ({ onDrop }) => {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: onDropAccepted,
     accept: {
-      "image/*": [".jpeg", ".png", ".jpg", ".gif", ".bmp", ".webp"],
+      'image/*': ['.jpeg', '.png', '.jpg', '.gif', '.bmp', '.webp'],
     },
     noClick: false,
     noKeyboard: true,
   });
 
+  const isCooldownRef = useRef(false);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const handlePaste = useCallback(
     (e: ClipboardEvent) => {
+      if (isCooldownRef.current) return;
+
       if (e.clipboardData && e.clipboardData.items) {
         const items = Array.from(e.clipboardData.items);
 
         for (const item of items) {
-          if (item.type.indexOf("image") !== -1) {
+          if (item.type.indexOf('image') !== -1) {
             const file = item.getAsFile();
 
             if (file) {
               onDrop(file);
               setIsPasting(true);
-              setTimeout(() => setIsPasting(false), 100);
+              isCooldownRef.current = true;
+
+              timeoutRef.current = setTimeout(() => {
+                setIsPasting(false);
+                isCooldownRef.current = false;
+              }, 1000);
               break;
             }
           }
@@ -52,17 +62,18 @@ const DropZone: React.FC<DropZoneProps> = ({ onDrop }) => {
   );
 
   useEffect(() => {
-    document.addEventListener("paste", handlePaste);
+    document.addEventListener('paste', handlePaste);
     return () => {
-      document.removeEventListener("paste", handlePaste);
+      document.removeEventListener('paste', handlePaste);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
   }, [handlePaste]);
 
   return (
     <div
       {...getRootProps()}
-      className={`drop-zone ${isDragActive ? "dragging" : ""} ${
-        isPasting ? "pasting" : ""
+      className={`drop-zone ${isDragActive ? 'dragging' : ''} ${
+        isPasting ? 'pasting' : ''
       }`}
     >
       <input {...getInputProps()} />

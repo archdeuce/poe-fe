@@ -43,13 +43,13 @@ const OcrGems = () => {
   const poesessidInputRef = useRef<HTMLInputElement>(null);
   const { setLoading } = useLoading();
 
-  const resetState = () => {
+  const resetState = useCallback(() => {
     setOcrText('');
     setGemName('');
     setGemUrl('');
     setGemDetailsUrl('');
     setGemDetailsData([]);
-  };
+  }, []);
 
   const resetStatePartial = () => {
     setGemUrl('');
@@ -300,10 +300,13 @@ const OcrGems = () => {
     }
   }, [isModalOpen]);
 
-  const handleDrop = (file: File) => {
-    resetState();
-    setImageUrl(URL.createObjectURL(file));
-  };
+  const handleDrop = useCallback(
+    (file: File) => {
+      resetState();
+      setImageUrl(URL.createObjectURL(file));
+    },
+    [resetState],
+  );
 
   const handleLanguageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target;
