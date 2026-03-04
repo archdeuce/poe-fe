@@ -1,5 +1,4 @@
 import './OcrGems.style.scss';
-
 import {
   FetchGemDataParams,
   FetchGemTradeDataParams,
@@ -12,22 +11,16 @@ import {
   fetchTradeDetailsData,
 } from '@/services/api';
 import { useCallback, useEffect, useRef, useState } from 'react';
-
 import { CURRENCY_MAP } from '@/utils/constants';
 import DropZone from '@/components/DropZone';
 import { GemDetailsData } from '@/types/ocr';
 import { LANGUAGES } from '@/utils/constants';
-import { Modal } from '@/components/Modal';
 import Tesseract from 'tesseract.js';
 import { useLoading } from '@/context/LoadingContext';
-
 const OcrTextLimit = 50;
 
 const OcrGems = () => {
-  const [text, setText] = useState<string>('');
   const [isError, setIsError] = useState<boolean>(false);
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [poesessid, setPoesessid] = useState<string>('');
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [ocrText, setOcrText] = useState<string>('');
   const [gemName, setGemName] = useState<string>('');
@@ -40,10 +33,8 @@ const OcrGems = () => {
     LANGUAGES.RUS,
   );
   const gemTradeLinkRef = useRef<HTMLAnchorElement>(null);
-  const poesessidInputRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const { setLoading } = useLoading();
-
   const resetState = useCallback(() => {
     setOcrText('');
     setGemName('');
@@ -67,15 +58,12 @@ const OcrGems = () => {
         } = await Tesseract.recognize(imageUrl, selectedLanguage, {
           logger: () => null,
         });
-
         let result = '';
-
         if (selectedLanguage === LANGUAGES.RUS) {
           result = text.replace(/[^а-яА-ЯёЁ\s\-]/g, '').trim();
         } else {
           result = text.replace(/[^a-zA-Z\s\-]/g, '').trim();
         }
-
         setOcrText(result);
       } catch (error) {
         console.error('OCR error:', error);
@@ -93,7 +81,6 @@ const OcrGems = () => {
     try {
       const data = await fetchGemData({ ocrText, language });
       const { success, name } = data || {};
-
       if (success) {
         setIsError(false);
         setGemName(name || '');
@@ -115,18 +102,9 @@ const OcrGems = () => {
   ): Promise<GemTradeData | null> => {
     setLoading(true);
     try {
-      const {
-        name,
-        poesessid,
-        language,
-        levelMin,
-        levelMax,
-        quality,
-        corrupted,
-      } = args;
+      const { name, language, levelMin, levelMax, quality, corrupted } = args;
       const data = await fetchGemTradeData({
         name,
-        poesessid,
         language,
         levelMin,
         levelMax,
@@ -134,7 +112,6 @@ const OcrGems = () => {
         corrupted,
       });
       const { success } = data || {};
-
       if (success) {
         setIsError(false);
         return data;
@@ -160,7 +137,6 @@ const OcrGems = () => {
       );
       return;
     }
-
     const { url, detailsUrl } = data;
     setGemUrl(url || '');
     setGemDetailsUrl(detailsUrl || '');
@@ -173,7 +149,6 @@ const OcrGems = () => {
     try {
       const data = await fetchTradeDetailsData(args);
       const { success, result } = data || { success: false, result: [] };
-
       if (success) {
         return result;
       } else {
@@ -188,7 +163,6 @@ const OcrGems = () => {
   };
 
   useEffect(() => {
-    setPoesessid(localStorage.getItem('poesessid') || '');
     setSelectedLanguage(localStorage.getItem('language') || LANGUAGES.RUS);
     setlsNeedOpenUrl(localStorage.getItem('openUrl') === 'true');
     setlsNeedPriceCheck(localStorage.getItem('checkPrice') === 'true');
@@ -216,7 +190,6 @@ const OcrGems = () => {
       (async () => {
         const data = await getGemTradeData({
           name: gemName,
-          poesessid,
           language: selectedLanguage,
           levelMin: 1,
           levelMax: 19,
@@ -234,9 +207,7 @@ const OcrGems = () => {
         try {
           const data = await getTradeDetailsData({
             url: gemDetailsUrl,
-            poesessid,
           });
-
           if (Array.isArray(data)) {
             setGemDetailsData(data);
           }
@@ -250,24 +221,18 @@ const OcrGems = () => {
         try {
           const ulrData = await getGemTradeData({
             name: gemName,
-            poesessid,
             language: selectedLanguage,
             levelMin: 20,
             levelMax: 20,
             corrupted: false,
           });
-
           const { detailsUrl } = ulrData || {};
-
           if (!detailsUrl) {
             return;
           }
-
           const data = await getTradeDetailsData({
             url: detailsUrl,
-            poesessid,
           });
-
           if (Array.isArray(data)) {
             setGemDetailsData((prev) => [...prev, ...data]);
           }
@@ -281,22 +246,17 @@ const OcrGems = () => {
         try {
           const ulrData = await getGemTradeData({
             name: gemName,
-            poesessid,
             language: selectedLanguage,
             levelMin: 21,
             quality: 20,
             corrupted: true,
           });
-
           const { detailsUrl } = ulrData || {};
-
           if (!detailsUrl) {
             return;
           }
-
           const data = await getTradeDetailsData({
             url: detailsUrl,
-            poesessid,
           });
           if (Array.isArray(data)) {
             setGemDetailsData((prev) => [...prev, ...data]);
@@ -306,7 +266,6 @@ const OcrGems = () => {
         }
       })();
     }
-
     return () => {};
   }, [gemDetailsUrl, isNeedPriceCheck]);
 
@@ -326,13 +285,6 @@ const OcrGems = () => {
     }
   }, [gemUrl, gemTradeLinkRef]);
 
-  // Установка фокуса на поле ввода в модальном окне при открытии
-  useEffect(() => {
-    if (isModalOpen && poesessidInputRef.current) {
-      poesessidInputRef.current.focus();
-    }
-  }, [isModalOpen]);
-
   const handleDrop = useCallback(
     (file: File) => {
       resetState();
@@ -350,7 +302,6 @@ const OcrGems = () => {
 
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, checked } = event.target;
-
     switch (name) {
       case 'auto-open-checkbox':
         setlsNeedOpenUrl(checked);
@@ -365,47 +316,10 @@ const OcrGems = () => {
     }
   };
 
-  const handleOpenModal = () => {
-    setText(poesessid);
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setText('');
-    setIsModalOpen(false);
-  };
-
-  const handleConfirmModal = () => {
-    setPoesessid(text);
-    localStorage.setItem('poesessid', text);
-    setText('');
-    handleCloseModal();
-  };
-
   const renderConfig = () => (
     <section>
       <h1>Конфигурация</h1>
       <ul>
-        {/* <li>
-          <span>Указать свой</span>
-          <button className="poesessid-button" onClick={handleOpenModal}>
-            POESESSID
-          </button>
-          {poesessid ? (
-            <img
-              src="/images/icons/check.svg"
-              alt="check"
-              className="poesessid-icon"
-            />
-          ) : (
-            <img
-              src="/images/icons/warning.svg"
-              alt="warning"
-              className="poesessid-icon"
-            />
-          )}
-        </li> */}
-
         <li>
           <span>Укажите язык клиента</span>
           <div className="language-switcher">
@@ -418,7 +332,6 @@ const OcrGems = () => {
               onChange={handleLanguageChange}
             />
             <label htmlFor={LANGUAGES.RUS}>{LANGUAGES.RUS}</label>
-
             <input
               type="radio"
               name="language"
@@ -430,7 +343,6 @@ const OcrGems = () => {
             <label htmlFor={LANGUAGES.ENG}>{LANGUAGES.ENG}</label>
           </div>
         </li>
-
         <li>
           <span>Открывать полученную ссылку автоматически</span>
           <input
@@ -442,7 +354,6 @@ const OcrGems = () => {
             onChange={handleCheckboxChange}
           />
         </li>
-
         <li>
           <span>Получать цены на предметы автоматически</span>
           <input
@@ -461,9 +372,7 @@ const OcrGems = () => {
   const renderScreenshot = () => (
     <section>
       <h1>Загрузка скриншота</h1>
-
       <DropZone onDrop={handleDrop} />
-
       {imageUrl && (
         <div className="image-preview">
           <img src={imageUrl} alt="Загруженный скриншот" />
@@ -532,7 +441,6 @@ const OcrGems = () => {
             )?.values[0][0] || 0;
           const { amount, currency } = listing?.price;
           const { indexed } = listing;
-
           return (
             <tr key={`gem-${indexed}`}>
               <td>{gemLevel}</td>
@@ -566,26 +474,6 @@ const OcrGems = () => {
     );
   };
 
-  const renderPoeSessIdModal = () => (
-    <Modal
-      isOpen={isModalOpen}
-      onClose={handleCloseModal}
-      title="Авторизация"
-      onConfirm={handleConfirmModal}
-      confirmButtonText="Сохранить"
-      cancelButtonText="Отмена"
-    >
-      <p>Пожалуйста, введите ваш POESESSID</p>
-      <input
-        type="text"
-        placeholder="POESESSID"
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        ref={poesessidInputRef}
-      />
-    </Modal>
-  );
-
   return (
     <>
       {renderConfig()}
@@ -593,10 +481,8 @@ const OcrGems = () => {
       {rendeOcrData()}
       {rendeServerMainData()}
       {rendePriceData()}
-      {renderPoeSessIdModal()}
       <div ref={bottomRef} />
     </>
   );
 };
-
 export default OcrGems;

@@ -5,7 +5,6 @@ export interface FetchGemDataParams {
 
 export interface FetchGemTradeDataParams {
   name: string;
-  poesessid: string;
   language: string;
   levelMin?: number;
   levelMax?: number;
@@ -15,7 +14,6 @@ export interface FetchGemTradeDataParams {
 
 export interface FetchTradeDetailsDataParams {
   url: string;
-  poesessid: string;
 }
 
 export interface GemTradeData {

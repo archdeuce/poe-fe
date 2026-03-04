@@ -46,7 +46,6 @@ export const fetchGemTradeData = async (
   try {
     const {
       name,
-      poesessid,
       language,
       levelMin = 1,
       levelMax = 21,
@@ -62,7 +61,6 @@ export const fetchGemTradeData = async (
       },
       body: JSON.stringify({
         name,
-        poesessid,
         language,
         levelMin,
         levelMax,
@@ -82,7 +80,7 @@ export const fetchTradeDetailsData = async (
   params: FetchTradeDetailsDataParams,
 ): Promise<TradeDetailsData | null> => {
   try {
-    const { url, poesessid } = params;
+    const { url } = params;
 
     const config = {
       method: 'POST',
@@ -90,7 +88,7 @@ export const fetchTradeDetailsData = async (
         Accept: 'application/json, text/plain, */*',
         'Content-Type': 'application/json;charset=utf-8',
       },
-      body: JSON.stringify({ url, poesessid }),
+      body: JSON.stringify({ url }),
     };
 
     const response = await fetch(`${API_BASE_URL}/trade/details`, config);
