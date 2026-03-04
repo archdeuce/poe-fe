@@ -1,0 +1,73 @@
+@import '../../styles/variables';
+
+.scroll-to-top {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 999;
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(2rem);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  pointer-events: none;
+
+  &.visible {
+    visibility: visible;
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: all;
+  }
+
+  button {
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 50%;
+    cursor: pointer;
+    background: rgba($primary-button-color, 0.25);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba($primary-button-color, 0.4);
+    color: $main-text-color;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    transition: all $transition;
+    outline: none;
+
+    &:hover {
+      background: rgba($primary-button-color, 0.4);
+      border-color: rgba($link-color, 0.25);
+      transform: translateY(-1px);
+      box-shadow: 0 12px 24px 0 rgba($primary-button-color, 0.2);
+
+      svg {
+        transform: scale(1.1);
+      }
+    }
+
+    &:active {
+      transform: translateY(-2px);
+    }
+
+    svg {
+      width: 1.5rem;
+      height: 1.5rem;
+      transition: all 0.2s ease;
+    }
+  }
+}
+
+// Mobile responsiveness
+@media (max-width: 768px) {
+  .scroll-to-top {
+    bottom: 1.5rem;
+    right: 1.5rem;
+
+    button {
+      width: 3rem;
+      height: 3rem;
+    }
+  }
+}

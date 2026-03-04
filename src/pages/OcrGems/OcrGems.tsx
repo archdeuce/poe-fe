@@ -41,6 +41,7 @@ const OcrGems = () => {
   );
   const gemTradeLinkRef = useRef<HTMLAnchorElement>(null);
   const poesessidInputRef = useRef<HTMLInputElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
   const { setLoading } = useLoading();
 
   const resetState = useCallback(() => {
@@ -283,6 +284,13 @@ const OcrGems = () => {
 
     return () => {};
   }, [gemDetailsUrl, isNeedPriceCheck]);
+
+  // Автоскролл вниз при появлении новых данных
+  useEffect(() => {
+    if (ocrText || gemName || gemDetailsData.length > 0) {
+      bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [ocrText, gemName, gemDetailsData]);
 
   // Обработчик автооткрытия ссылок
   useEffect(() => {
@@ -561,6 +569,7 @@ const OcrGems = () => {
       {rendeServerMainData()}
       {rendePriceData()}
       {renderPoeSessIdModal()}
+      <div ref={bottomRef} />
     </>
   );
 };
