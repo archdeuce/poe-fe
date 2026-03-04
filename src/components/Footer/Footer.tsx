@@ -18,7 +18,10 @@ const Footer = () => {
           Тестирование:
           <a href="https://discordapp.com/users/virusit">Virusit</a>
         </p>
-        <p>© 2025 PoE OCR. All rights reserved.</p>
+
+        <p>
+          © {new Date().getFullYear()} PoE OCR Project. All rights reserved.
+        </p>
       </div>
     </footer>
   );
