@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useCallback,
+} from 'react';
 
 interface LoadingContextType {
   loading: boolean;
@@ -10,7 +16,13 @@ const LoadingContext = createContext<LoadingContextType | undefined>(undefined);
 export const LoadingProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [loading, setLoading] = useState(false);
+  const [activeRequests, setActiveRequests] = useState(0);
+
+  const setLoading = useCallback((isLoading: boolean) => {
+    setActiveRequests((prev) => (isLoading ? prev + 1 : Math.max(0, prev - 1)));
+  }, []);
+
+  const loading = activeRequests > 0;
 
   return (
     <LoadingContext.Provider value={{ loading, setLoading }}>

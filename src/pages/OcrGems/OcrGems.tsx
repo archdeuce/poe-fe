@@ -61,74 +61,93 @@ const OcrGems = () => {
   const doOCR = useCallback(async () => {
     if (imageUrl) {
       setLoading(true);
-      const {
-        data: { text },
-      } = await Tesseract.recognize(imageUrl, selectedLanguage, {
-        logger: () => null,
-      });
+      try {
+        const {
+          data: { text },
+        } = await Tesseract.recognize(imageUrl, selectedLanguage, {
+          logger: () => null,
+        });
 
-      let result = '';
+        let result = '';
 
-      if (selectedLanguage === LANGUAGES.RUS) {
-        result = text.replace(/[^а-яА-ЯёЁ\s\-]/g, '').trim();
-      } else {
-        result = text.replace(/[^a-zA-Z\s\-]/g, '').trim();
+        if (selectedLanguage === LANGUAGES.RUS) {
+          result = text.replace(/[^а-яА-ЯёЁ\s\-]/g, '').trim();
+        } else {
+          result = text.replace(/[^a-zA-Z\s\-]/g, '').trim();
+        }
+
+        setOcrText(result);
+      } catch (error) {
+        console.error('OCR error:', error);
+      } finally {
+        setLoading(false);
       }
-
-      setOcrText(result);
-      setLoading(false);
     }
-  }, [imageUrl, selectedLanguage]);
+  }, [imageUrl, selectedLanguage, setLoading]);
 
   const getGemData = async (
     ocrText: FetchGemDataParams['ocrText'],
     language: FetchGemDataParams['language'],
   ) => {
     setLoading(true);
-    const data = await fetchGemData({ ocrText, language });
-    const { success, name } = data || {};
+    try {
+      const data = await fetchGemData({ ocrText, language });
+      const { success, name } = data || {};
 
-    if (success) {
-      setIsError(false);
-      setGemName(name || '');
-    } else {
+      if (success) {
+        setIsError(false);
+        setGemName(name || '');
+      } else {
+        setIsError(true);
+        setGemName('Сервер не распознал название предмета.');
+      }
+    } catch (error) {
+      console.error('Fetch gem data error:', error);
       setIsError(true);
-      setGemName('Сервер не распознал название предмета.');
+      setGemName('Ошибка при запросе данных.');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const getGemTradeData = async (
     args: FetchGemTradeDataParams,
   ): Promise<GemTradeData | null> => {
     setLoading(true);
-    const {
-      name,
-      poesessid,
-      language,
-      levelMin,
-      levelMax,
-      quality,
-      corrupted,
-    } = args;
-    const data = await fetchGemTradeData({
-      name,
-      poesessid,
-      language,
-      levelMin,
-      levelMax,
-      quality,
-      corrupted,
-    });
-    const { success } = data || {};
+    try {
+      const {
+        name,
+        poesessid,
+        language,
+        levelMin,
+        levelMax,
+        quality,
+        corrupted,
+      } = args;
+      const data = await fetchGemTradeData({
+        name,
+        poesessid,
+        language,
+        levelMin,
+        levelMax,
+        quality,
+        corrupted,
+      });
+      const { success } = data || {};
 
-    setLoading(false);
-    if (success) {
-      setIsError(false);
-      return data;
-    } else {
+      if (success) {
+        setIsError(false);
+        return data;
+      } else {
+        setIsError(true);
+        return null;
+      }
+    } catch (error) {
+      console.error('Fetch gem trade data error:', error);
       setIsError(true);
       return null;
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -151,14 +170,20 @@ const OcrGems = () => {
     args: FetchTradeDetailsDataParams,
   ): Promise<GemDetailsData[] | null> => {
     setLoading(true);
-    const data = await fetchTradeDetailsData(args);
-    const { success, result } = data || { success: false, result: [] };
+    try {
+      const data = await fetchTradeDetailsData(args);
+      const { success, result } = data || { success: false, result: [] };
 
-    setLoading(false);
-    if (success) {
-      return result;
-    } else {
+      if (success) {
+        return result;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.error('Fetch trade details error:', error);
       return null;
+    } finally {
+      setLoading(false);
     }
   };
 
