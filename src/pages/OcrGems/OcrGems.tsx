@@ -19,6 +19,7 @@ import { GemDetailsData } from '@/types/ocr';
 import { LANGUAGES } from '@/utils/constants';
 import { Modal } from '@/components/Modal';
 import Tesseract from 'tesseract.js';
+import { useLoading } from '@/context/LoadingContext';
 
 const OcrTextLimit = 50;
 
@@ -40,6 +41,7 @@ const OcrGems = () => {
   );
   const gemTradeLinkRef = useRef<HTMLAnchorElement>(null);
   const poesessidInputRef = useRef<HTMLInputElement>(null);
+  const { setLoading } = useLoading();
 
   const resetState = () => {
     setOcrText('');
@@ -57,6 +59,7 @@ const OcrGems = () => {
 
   const doOCR = useCallback(async () => {
     if (imageUrl) {
+      setLoading(true);
       const {
         data: { text },
       } = await Tesseract.recognize(imageUrl, selectedLanguage, {
@@ -72,6 +75,7 @@ const OcrGems = () => {
       }
 
       setOcrText(result);
+      setLoading(false);
     }
   }, [imageUrl, selectedLanguage]);
 
@@ -79,6 +83,7 @@ const OcrGems = () => {
     ocrText: FetchGemDataParams['ocrText'],
     language: FetchGemDataParams['language'],
   ) => {
+    setLoading(true);
     const data = await fetchGemData({ ocrText, language });
     const { success, name } = data || {};
 
@@ -89,11 +94,13 @@ const OcrGems = () => {
       setIsError(true);
       setGemName('Сервер не распознал название предмета.');
     }
+    setLoading(false);
   };
 
   const getGemTradeData = async (
     args: FetchGemTradeDataParams,
   ): Promise<GemTradeData | null> => {
+    setLoading(true);
     const {
       name,
       poesessid,
@@ -114,6 +121,7 @@ const OcrGems = () => {
     });
     const { success } = data || {};
 
+    setLoading(false);
     if (success) {
       setIsError(false);
       return data;
@@ -141,9 +149,11 @@ const OcrGems = () => {
   const getTradeDetailsData = async (
     args: FetchTradeDetailsDataParams,
   ): Promise<GemDetailsData[] | null> => {
+    setLoading(true);
     const data = await fetchTradeDetailsData(args);
     const { success, result } = data || { success: false, result: [] };
 
+    setLoading(false);
     if (success) {
       return result;
     } else {
@@ -340,7 +350,7 @@ const OcrGems = () => {
     <section>
       <h1>Конфигурация</h1>
       <ul>
-        <li>
+        {/* <li>
           <span>Указать свой</span>
           <button className="poesessid-button" onClick={handleOpenModal}>
             POESESSID
@@ -358,7 +368,7 @@ const OcrGems = () => {
               className="poesessid-icon"
             />
           )}
-        </li>
+        </li> */}
 
         <li>
           <span>Укажите язык клиента</span>
