@@ -1,10 +1,35 @@
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, Navigate } from 'react-router-dom';
 
-import Home from './pages/Home/Home';
+import Home from './pages/Home';
 import Layout from './components/Layout';
 import Loader from './components/Loader';
-import OcrGems from './pages/OcrGems/OcrGems';
+import LabPage from './pages/Lab';
+import HeistPage from './pages/Heist';
+import MemoryPage from './pages/Memory';
+import SettingsPage from './pages/Settings';
+import LoginPage from './pages/Login';
+import AdminPage from './pages/Admin';
 import { ROUTES } from './utils/constants';
+
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+  requiredRole?: string;
+}
+
+const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
+  const token = localStorage.getItem('token');
+  const role = localStorage.getItem('role');
+
+  if (!token) {
+    return <Navigate to={ROUTES.LOGIN.URL} replace />;
+  }
+
+  if (requiredRole && (role || '').toLowerCase() !== requiredRole.toLowerCase()) {
+    return <Navigate to={ROUTES.MAIN.URL} replace />;
+  }
+
+  return <>{children}</>;
+};
 
 const App = () => {
   return (
@@ -20,10 +45,60 @@ const App = () => {
           }
         />
         <Route
-          path={ROUTES.OCR_GEMS.URL}
+          path={ROUTES.LAB.URL}
           element={
             <Layout>
-              <OcrGems />
+              <ProtectedRoute>
+                <LabPage />
+              </ProtectedRoute>
+            </Layout>
+          }
+        />
+        <Route
+          path={ROUTES.HEIST.URL}
+          element={
+            <Layout>
+              <ProtectedRoute>
+                <HeistPage />
+              </ProtectedRoute>
+            </Layout>
+          }
+        />
+        <Route
+          path={ROUTES.MEMORY.URL}
+          element={
+            <Layout>
+              <ProtectedRoute>
+                <MemoryPage />
+              </ProtectedRoute>
+            </Layout>
+          }
+        />
+        <Route
+          path={ROUTES.SETTINGS.URL}
+          element={
+            <Layout>
+              <ProtectedRoute>
+                <SettingsPage />
+              </ProtectedRoute>
+            </Layout>
+          }
+        />
+        <Route
+          path={ROUTES.LOGIN.URL}
+          element={
+            <Layout>
+              <LoginPage />
+            </Layout>
+          }
+        />
+        <Route
+          path={ROUTES.ADMIN.URL}
+          element={
+            <Layout>
+              <ProtectedRoute requiredRole="Admin">
+                <AdminPage />
+              </ProtectedRoute>
             </Layout>
           }
         />

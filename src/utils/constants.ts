@@ -3,9 +3,29 @@ export const ROUTES = {
     URL: '/',
     NAME: 'Главная',
   },
-  OCR_GEMS: {
-    URL: '/ocr/gems',
+  LAB: {
+    URL: '/lab',
     NAME: 'Лабиринт',
+  },
+  HEIST: {
+    URL: '/heist',
+    NAME: 'Кража',
+  },
+  MEMORY: {
+    URL: '/memory',
+    NAME: 'Воспоминания',
+  },
+  SETTINGS: {
+    URL: '/settings',
+    NAME: 'Настройки',
+  },
+  LOGIN: {
+    URL: '/login',
+    NAME: 'Вход',
+  },
+  ADMIN: {
+    URL: '/admin',
+    NAME: 'Админка',
   },
 };
 

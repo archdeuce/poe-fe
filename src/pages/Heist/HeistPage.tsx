@@ -1,4 +1,4 @@
-import './OcrGems.style.scss';
+import './HeistPage.style.scss';
 import {
   FetchGemDataParams,
   FetchGemTradeDataParams,
@@ -6,20 +6,20 @@ import {
   GemTradeData,
 } from '@/types/api';
 import {
-  fetchGemData,
-  fetchGemTradeData,
+  fetchHeistData as fetchGemData,
+  fetchHeistTradeData as fetchGemTradeData,
   fetchTradeDetailsData,
 } from '@/services/api';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { CURRENCY_MAP } from '@/utils/constants';
+import { CURRENCY_MAP, LANGUAGES } from '@/utils/constants';
 import DropZone from '@/components/DropZone';
 import { GemDetailsData } from '@/types/ocr';
-import { LANGUAGES } from '@/utils/constants';
 import Tesseract from 'tesseract.js';
 import { useLoading } from '@/context/LoadingContext';
+import PoeDynamicTooltip from '@/components/PoeDynamicTooltip';
 const OcrTextLimit = 50;
 
-const OcrGems = () => {
+const HeistPage = () => {
   const [isError, setIsError] = useState<boolean>(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [ocrText, setOcrText] = useState<string>('');
@@ -293,82 +293,6 @@ const OcrGems = () => {
     [resetState],
   );
 
-  const handleLanguageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = event.target;
-    setSelectedLanguage(value);
-    localStorage.setItem('language', value);
-    resetStatePartial();
-  };
-
-  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, checked } = event.target;
-    switch (name) {
-      case 'auto-open-checkbox':
-        setlsNeedOpenUrl(checked);
-        localStorage.setItem('openUrl', String(checked));
-        break;
-      case 'auto-get-price-checkbox':
-        setlsNeedPriceCheck(checked);
-        localStorage.setItem('checkPrice', String(checked));
-        break;
-      default:
-        break;
-    }
-  };
-
-  const renderConfig = () => (
-    <section>
-      <h1>Конфигурация</h1>
-      <ul>
-        <li>
-          <span>Укажите язык клиента</span>
-          <div className="language-switcher">
-            <input
-              type="radio"
-              name="language"
-              id={LANGUAGES.RUS}
-              value={LANGUAGES.RUS}
-              checked={selectedLanguage === LANGUAGES.RUS}
-              onChange={handleLanguageChange}
-            />
-            <label htmlFor={LANGUAGES.RUS}>{LANGUAGES.RUS}</label>
-            <input
-              type="radio"
-              name="language"
-              id={LANGUAGES.ENG}
-              value={LANGUAGES.ENG}
-              checked={selectedLanguage === LANGUAGES.ENG}
-              onChange={handleLanguageChange}
-            />
-            <label htmlFor={LANGUAGES.ENG}>{LANGUAGES.ENG}</label>
-          </div>
-        </li>
-        <li>
-          <span>Открывать полученную ссылку автоматически</span>
-          <input
-            type="checkbox"
-            id="auto-open-checkbox"
-            name="auto-open-checkbox"
-            className="custom-checkbox"
-            checked={isNeedOpenUrl}
-            onChange={handleCheckboxChange}
-          />
-        </li>
-        <li>
-          <span>Получать цены на предметы автоматически</span>
-          <input
-            type="checkbox"
-            id="auto-get-price-checkbox"
-            name="auto-get-price-checkbox"
-            className="custom-checkbox"
-            checked={isNeedPriceCheck}
-            onChange={handleCheckboxChange}
-          />
-        </li>
-      </ul>
-    </section>
-  );
-
   const renderScreenshot = () => (
     <section>
       <h1>Загрузка скриншота</h1>
@@ -396,29 +320,38 @@ const OcrGems = () => {
     </>
   );
 
-  const rendeServerMainData = () => (
-    <section>
-      {gemName && (
-        <p className="text-output">
-          <span>Название предмета:</span>
-          {gemName}
-        </p>
-      )}
-      {gemUrl && (
-        <p className="text-output">
-          <span>Ссылка на торговый сайт:</span>
-          <a
-            id="gem-trade-link"
-            target="_blank"
-            href={gemUrl}
-            ref={gemTradeLinkRef}
-          >
-            {gemUrl}
-          </a>
-        </p>
-      )}
-    </section>
-  );
+  const rendeServerMainData = () => {
+    const mainItem = gemDetailsData[0]?.item;
+    return (
+      <section>
+        {gemName && (
+          <p className="text-output">
+            <span>Название предмета:</span>
+            {mainItem ? (
+              <PoeDynamicTooltip item={mainItem}>
+                <span className="poe-tooltip-trigger">{gemName}</span>
+              </PoeDynamicTooltip>
+            ) : (
+              gemName
+            )}
+          </p>
+        )}
+        {gemUrl && (
+          <p className="text-output">
+            <span>Ссылка на торговый сайт:</span>
+            <a
+              id="gem-trade-link"
+              target="_blank"
+              href={gemUrl}
+              ref={gemTradeLinkRef}
+            >
+              {gemUrl}
+            </a>
+          </p>
+        )}
+      </section>
+    );
+  };
 
   const renderGemDataTable = (gemData: GemDetailsData[]) => (
     <table className="gem-price-table">
@@ -443,7 +376,11 @@ const OcrGems = () => {
           const { indexed } = listing;
           return (
             <tr key={`gem-${indexed}`}>
-              <td>{gemLevel}</td>
+              <td>
+                <PoeDynamicTooltip item={item}>
+                  <span className="poe-tooltip-trigger">{gemLevel}</span>
+                </PoeDynamicTooltip>
+              </td>
               <td>{gemQuality || 0}</td>
               <td>
                 <div className="currency-container">
@@ -476,7 +413,6 @@ const OcrGems = () => {
 
   return (
     <>
-      {renderConfig()}
       {renderScreenshot()}
       {rendeOcrData()}
       {rendeServerMainData()}
@@ -485,4 +421,4 @@ const OcrGems = () => {
     </>
   );
 };
-export default OcrGems;
+export default HeistPage;

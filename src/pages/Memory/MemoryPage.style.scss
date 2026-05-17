@@ -1,0 +1,191 @@
+ul {
+  li {
+    display: flex;
+    align-items: flex-start;
+  }
+
+  span {
+    margin-right: 0.25rem;
+  }
+
+  .poesessid-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 1.5rem;
+    font-size: 0.75rem;
+    background-color: $primary-button-color;
+    color: $main-text-color;
+    border: none;
+    border-radius: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    cursor: pointer;
+    transition: $transition;
+
+    &:hover {
+      background-color: $primary-button-color-hover;
+    }
+  }
+
+  .poesessid-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-left: 0.4rem;
+
+    &[alt='check'] {
+      filter: invert(47%) sepia(76%) saturate(382%) hue-rotate(85deg)
+        brightness(95%) contrast(87%);
+    }
+
+    &[alt='warning'] {
+      filter: invert(75%) sepia(100%) saturate(6747%) hue-rotate(352deg)
+        brightness(100%) contrast(70%);
+    }
+  }
+
+  .custom-checkbox {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    margin: 0 0.2rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    min-width: 1.5rem;
+    min-height: 1.5rem;
+    vertical-align: middle;
+    border: 0.125rem solid $border-color;
+    border-radius: 0.25rem;
+    background-color: $secondary-bg-color;
+    cursor: pointer;
+    position: relative;
+    transition: $transition;
+
+    &:checked {
+      background-color: $checkbox-color;
+      border-color: $checkbox-color;
+
+      &::after {
+        content: '';
+        display: block;
+        width: 0.3rem;
+        height: 0.6rem;
+        border: solid $main-text-color;
+        border-width: 0 0.15rem 0.15rem 0;
+        transform: rotate(45deg);
+        position: absolute;
+        left: 0.5rem;
+        top: 0.3rem;
+      }
+    }
+
+    &:focus {
+      outline: none;
+      box-shadow: 0 0 0 0.1rem $checkbox-color;
+    }
+  }
+
+  .language-switcher {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    height: 1.6rem;
+    border: 0.125rem solid $border-color;
+    border-radius: 0.25rem;
+    overflow: hidden;
+    width: fit-content;
+
+    input[type='radio'] {
+      display: none;
+    }
+
+    label {
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      background-color: $secondary-bg-color;
+      color: $secondary-text-color;
+      transition: $transition;
+      font-size: 0.875rem;
+
+      &:hover {
+        background-color: $secondary-bg-color;
+      }
+    }
+
+    input[type='radio']:checked + label {
+      background-color: $primary-button-color;
+      color: $main-text-color;
+      &:hover {
+        background-color: $primary-button-color-hover;
+      }
+    }
+
+    label:first-of-type {
+      border-right: 0.0625rem solid $border-color;
+    }
+  }
+}
+
+.image-preview {
+  margin-top: 1.25rem;
+  max-width: 100%;
+  border: 0.125rem solid $light-border-color;
+  border-radius: 0.25rem;
+  overflow: hidden;
+}
+
+.image-preview img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.text-output {
+  span {
+    color: $title-text-color;
+    margin-right: 0.3rem;
+  }
+}
+
+.price-block {
+  margin: 1rem 0;
+}
+
+.gem-price-table {
+  min-width: 20rem;
+  border: 1px solid;
+  border-collapse: collapse;
+  text-align: right;
+
+  thead {
+    background-color: $menu-bg-color;
+  }
+
+  tr {
+    &:nth-child(2n) {
+      background-color: $menu-bg-color;
+    }
+  }
+
+  th {
+    border-bottom: 1px solid #fff;
+    color: $title-text-color;
+    padding-right: 0.5rem;
+  }
+
+  td {
+    flex-direction: row;
+    padding-right: 0.5rem;
+
+    .currency-container {
+      display: inline-flex;
+
+      span {
+        padding-right: 0.2rem;
+      }
+
+      img {
+        width: 1.6rem;
+      }
+    }
+  }
+}

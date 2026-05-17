@@ -1,0 +1,94 @@
+.settings-page {
+  ul {
+    li {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+
+    span {
+      margin-right: 0.25rem;
+    }
+
+    .custom-checkbox {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      margin: 0 0.2rem;
+      width: 1.5rem;
+      height: 1.5rem;
+      min-width: 1.5rem;
+      min-height: 1.5rem;
+      vertical-align: middle;
+      border: 0.125rem solid #2f343a; /* fallback for $border-color */
+      border-radius: 0.25rem;
+      background-color: #24292e; /* fallback for $secondary-bg-color */
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s ease-in-out;
+
+      &:checked {
+        background-color: #1a73e8; /* fallback for $checkbox-color */
+        border-color: #1a73e8;
+
+        &::after {
+          content: '';
+          display: block;
+          width: 0.3rem;
+          height: 0.6rem;
+          border: solid #ffffff; /* fallback for $main-text-color */
+          border-width: 0 0.15rem 0.15rem 0;
+          transform: rotate(45deg);
+          position: absolute;
+          left: 0.5rem;
+          top: 0.3rem;
+        }
+      }
+
+      &:focus {
+        outline: none;
+        box-shadow: 0 0 0 0.1rem #1a73e8;
+      }
+    }
+
+    .language-switcher {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      height: 1.6rem;
+      border: 0.125rem solid #2f343a;
+      border-radius: 0.25rem;
+      overflow: hidden;
+      width: fit-content;
+
+      input[type='radio'] {
+        display: none;
+      }
+
+      label {
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        background-color: #24292e;
+        color: #8b949e;
+        transition: all 0.2s ease-in-out;
+        font-size: 0.875rem;
+
+        &:hover {
+          background-color: #24292e;
+        }
+      }
+
+      input[type='radio']:checked + label {
+        background-color: #238636;
+        color: #ffffff;
+        &:hover {
+          background-color: #2ea043;
+        }
+      }
+
+      label:first-of-type {
+        border-right: 0.0625rem solid #2f343a;
+      }
+    }
+  }
+}
