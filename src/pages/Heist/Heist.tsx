@@ -1,10 +1,5 @@
 import './Heist.style.scss';
 import {
-  fetchHeistDataParams,
-  FetchTradeDetailsDataParams,
-  GemTradeData,
-} from '@/types/api';
-import {
   fetchHeistData,
   fetchHeistTradeData,
   fetchTradeDetailsData,
@@ -25,7 +20,9 @@ const Heist = () => {
   const [heistName, setHeistName] = useState<string>('');
   const [heistUrl, setHeistUrl] = useState<string>('');
   const [heistDetailsUrl, setHeistDetailsUrl] = useState<string>('');
-  const [heistDetailsData, setHeistDetailsData] = useState<GemDetailsData[]>([]);
+  const [heistDetailsData, setHeistDetailsData] = useState<GemDetailsData[]>(
+    [],
+  );
   const [isNeedOpenUrl, setlsNeedOpenUrl] = useState<boolean>(false);
   const [isNeedPriceCheck, setlsNeedPriceCheck] = useState<boolean>(false);
   const [selectedLanguage, setSelectedLanguage] = useState<string>(
@@ -72,10 +69,7 @@ const Heist = () => {
     }
   }, [imageUrl, selectedLanguage, setLoading]);
 
-  const getHeistData = async (
-    ocrText: string,
-    language: string,
-  ) => {
+  const getHeistData = async (ocrText: string, language: string) => {
     setLoading(true);
     try {
       const data = await fetchHeistData({ ocrText, language });
@@ -99,7 +93,7 @@ const Heist = () => {
   const getHeistTradeData = async (
     name: string,
     language: string,
-  ): Promise<GemTradeData | null> => {
+  ): Promise<any> => {
     setLoading(true);
     try {
       const data = await fetchHeistTradeData({
@@ -123,7 +117,7 @@ const Heist = () => {
     }
   };
 
-  const processDefaultHeist = (data: GemTradeData | null) => {
+  const processDefaultHeist = (data: any) => {
     if (!data) {
       setHeistUrl(
         selectedLanguage === LANGUAGES.RUS
@@ -137,9 +131,7 @@ const Heist = () => {
     setHeistDetailsUrl(detailsUrl || '');
   };
 
-  const getTradeDetailsData = async (
-    url: string,
-  ): Promise<GemDetailsData[] | null> => {
+  const getTradeDetailsData = async (url: string): Promise<any[] | null> => {
     setLoading(true);
     try {
       const data = await fetchTradeDetailsData({ url });
@@ -283,7 +275,7 @@ const Heist = () => {
     );
   };
 
-  const renderDataTable = (heistData: GemDetailsData[]) => (
+  const renderDataTable = (heistData: any[]) => (
     <table className="heist-price-table">
       <thead>
         <tr>
@@ -292,11 +284,10 @@ const Heist = () => {
         </tr>
       </thead>
       <tbody>
-        {heistData?.map(({ listing, item }) => {
+        {heistData?.map(({ id, listing, item }) => {
           const { amount, currency } = listing?.price;
-          const { indexed } = listing;
           return (
-            <tr key={`heist-${indexed}`}>
+            <tr key={`heist-${id}`}>
               <td>
                 <PoeDynamicTooltip item={item}>
                   <span className="poe-tooltip-trigger">{item.name}</span>

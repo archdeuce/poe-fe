@@ -299,7 +299,11 @@ const AdminPage = () => {
 
   const handleSort = (key: string) => {
     let direction: 'asc' | 'desc' = 'asc';
-    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
+    if (
+      sortConfig &&
+      sortConfig.key === key &&
+      sortConfig.direction === 'asc'
+    ) {
       direction = 'desc';
     }
     setSortConfig({ key, direction });
@@ -667,8 +671,10 @@ const AdminPage = () => {
                           ]
                         : []),
                       {
-                        key: activeTab === 'heist' ? 'updatedAt' : 'discriminator',
-                        label: activeTab === 'heist' ? 'Обновлено' : 'Дискриминатор',
+                        key:
+                          activeTab === 'heist' ? 'updatedAt' : 'discriminator',
+                        label:
+                          activeTab === 'heist' ? 'Обновлено' : 'Дискриминатор',
                       },
                     ].map((col) => (
                       <Table.Th
@@ -1021,7 +1027,6 @@ const AdminPage = () => {
                           color: '#f1f5f9',
                           backgroundColor: 'transparent',
                         },
-                        required: true,
                       }}
                     />
                   </>

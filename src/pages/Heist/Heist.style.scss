@@ -153,7 +153,7 @@ ul {
 .heist-price-table {
   min-width: 20rem;
   max-width: 30rem;
-  border: 1px solid #444;
+  border: 1px solid;
   border-collapse: collapse;
   text-align: left;
   font-size: 0.8rem;
@@ -172,7 +172,7 @@ ul {
     border-bottom: 1px solid #fff;
     color: $title-text-color;
     padding: 0.4rem;
-    font-size: 0.9rem;
+    font-size: 1rem;
     font-weight: bold;
   }
 
