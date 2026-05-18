@@ -1,8 +1,8 @@
-import './SettingsPage.style.scss';
+import './Settings.style.scss';
 import { useState, useEffect } from 'react';
 import { LANGUAGES } from '@/utils/constants';
 
-const SettingsPage = () => {
+const Settings = () => {
   const [selectedLanguage, setSelectedLanguage] = useState<string>(
     LANGUAGES.RUS,
   );
@@ -91,4 +91,4 @@ const SettingsPage = () => {
   );
 };
 
-export default SettingsPage;
+export default Settings;

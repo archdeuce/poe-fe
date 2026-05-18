@@ -11,10 +11,6 @@ export const ROUTES = {
     URL: '/heist',
     NAME: 'Кража',
   },
-  MEMORY: {
-    URL: '/memory',
-    NAME: 'Воспоминания',
-  },
   SETTINGS: {
     URL: '/settings',
     NAME: 'Настройки',

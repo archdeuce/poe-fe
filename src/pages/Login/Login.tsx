@@ -21,9 +21,9 @@ import {
   IconAlertCircle,
   IconShieldLock,
 } from '@tabler/icons-react';
-import './LoginPage.style.scss';
+import './Login.style.scss';
 
-const LoginPage = () => {
+const Login = () => {
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -154,4 +154,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default Login;

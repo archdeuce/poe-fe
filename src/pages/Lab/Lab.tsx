@@ -1,25 +1,25 @@
-import './MemoryPage.style.scss';
+import './Lab.style.scss';
 import {
   FetchGemDataParams,
   FetchGemTradeDataParams,
   FetchTradeDetailsDataParams,
-  GemTradeData,
+  ItemTradeData,
 } from '@/types/api';
 import {
-  fetchMemoryData as fetchGemData,
-  fetchMemoryTradeData as fetchGemTradeData,
+  fetchGemData,
+  fetchGemTradeData,
   fetchTradeDetailsData,
 } from '@/services/api';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { CURRENCY_MAP } from '@/utils/constants';
+import { CURRENCY_MAP, LANGUAGES } from '@/utils/constants';
 import DropZone from '@/components/DropZone';
 import { GemDetailsData } from '@/types/ocr';
-import { LANGUAGES } from '@/utils/constants';
 import Tesseract from 'tesseract.js';
 import { useLoading } from '@/context/LoadingContext';
+import PoeDynamicTooltip from '@/components/PoeDynamicTooltip';
 const OcrTextLimit = 50;
 
-const MemoryPage = () => {
+const Lab = () => {
   const [isError, setIsError] = useState<boolean>(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [ocrText, setOcrText] = useState<string>('');
@@ -99,7 +99,7 @@ const MemoryPage = () => {
 
   const getGemTradeData = async (
     args: FetchGemTradeDataParams,
-  ): Promise<GemTradeData | null> => {
+  ): Promise<ItemTradeData | null> => {
     setLoading(true);
     try {
       const { name, language, levelMin, levelMax, quality, corrupted } = args;
@@ -128,7 +128,7 @@ const MemoryPage = () => {
     }
   };
 
-  const processDefaultGem = (data: GemTradeData | null) => {
+  const processDefaultGem = (data: ItemTradeData | null) => {
     if (!data) {
       setGemUrl(
         selectedLanguage === LANGUAGES.RUS
@@ -320,29 +320,38 @@ const MemoryPage = () => {
     </>
   );
 
-  const rendeServerMainData = () => (
-    <section>
-      {gemName && (
-        <p className="text-output">
-          <span>Название предмета:</span>
-          {gemName}
-        </p>
-      )}
-      {gemUrl && (
-        <p className="text-output">
-          <span>Ссылка на торговый сайт:</span>
-          <a
-            id="gem-trade-link"
-            target="_blank"
-            href={gemUrl}
-            ref={gemTradeLinkRef}
-          >
-            {gemUrl}
-          </a>
-        </p>
-      )}
-    </section>
-  );
+  const rendeServerMainData = () => {
+    const mainItem = gemDetailsData[0]?.item;
+    return (
+      <section>
+        {gemName && (
+          <p className="text-output">
+            <span>Название предмета:</span>
+            {mainItem ? (
+              <PoeDynamicTooltip item={mainItem}>
+                <span className="poe-tooltip-trigger">{gemName}</span>
+              </PoeDynamicTooltip>
+            ) : (
+              <span>{gemName}</span>
+            )}
+          </p>
+        )}
+        {gemUrl && (
+          <p className="text-output">
+            <span>Ссылка на торговый сайт:</span>
+            <a
+              id="gem-trade-link"
+              target="_blank"
+              href={gemUrl}
+              ref={gemTradeLinkRef}
+            >
+              {gemUrl}
+            </a>
+          </p>
+        )}
+      </section>
+    );
+  };
 
   const renderGemDataTable = (gemData: GemDetailsData[]) => (
     <table className="gem-price-table">
@@ -367,7 +376,11 @@ const MemoryPage = () => {
           const { indexed } = listing;
           return (
             <tr key={`gem-${indexed}`}>
-              <td>{gemLevel}</td>
+              <td>
+                <PoeDynamicTooltip item={item}>
+                  <span className="poe-tooltip-trigger">{gemLevel}</span>
+                </PoeDynamicTooltip>
+              </td>
               <td>{gemQuality || 0}</td>
               <td>
                 <div className="currency-container">
@@ -408,4 +421,4 @@ const MemoryPage = () => {
     </>
   );
 };
-export default MemoryPage;
+export default Lab;

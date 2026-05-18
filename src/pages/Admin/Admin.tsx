@@ -31,7 +31,6 @@ import {
   IconSearch,
   IconAlertCircle,
   IconLayoutGrid,
-  IconBrain,
   IconTrendingUp,
   IconUsers,
 } from '@tabler/icons-react';
@@ -213,7 +212,7 @@ const AdminPage = () => {
       return;
     }
 
-    const payload =
+    const payload: any =
       activeTab === 'users'
         ? {
             login: userLogin.trim(),
@@ -224,18 +223,22 @@ const AdminPage = () => {
         : {
             name_ru: cleanGemField(nameRu),
             name_eng: cleanGemField(nameEng),
-            option_ru: cleanGemField(optionRu),
-            option_eng: cleanGemField(optionEng),
             discriminator: discriminator,
           };
+
+    if (activeTab !== 'users' && activeTab !== 'heist') {
+      payload.option_ru = cleanGemField(optionRu);
+      payload.option_eng = cleanGemField(optionEng);
+    }
 
     try {
       let response;
       if (selectedItem) {
         // Update
-        response = activeTab === 'users'
-          ? await usersApi.updateUser(selectedItem.id, payload)
-          : await itemsApi.updateItem(activeTab, selectedItem.id, payload);
+        response =
+          activeTab === 'users'
+            ? await usersApi.updateUser(selectedItem.id, payload)
+            : await itemsApi.updateItem(activeTab, selectedItem.id, payload);
       } else {
         // Create
         response = await itemsApi.createItem(activeTab, payload);
@@ -270,9 +273,10 @@ const AdminPage = () => {
     }
 
     try {
-      const response = activeTab === 'users'
-        ? await usersApi.deleteUser(itemToDelete)
-        : await itemsApi.deleteItem(activeTab, itemToDelete);
+      const response =
+        activeTab === 'users'
+          ? await usersApi.deleteUser(itemToDelete)
+          : await itemsApi.deleteItem(activeTab, itemToDelete);
 
       if (response.ok) {
         fetchItems(activeTab);
@@ -286,6 +290,19 @@ const AdminPage = () => {
       setDeleteModalOpen(false);
       setItemToDelete(null);
     }
+  };
+
+  const [sortConfig, setSortConfig] = useState<{
+    key: string;
+    direction: 'asc' | 'desc';
+  } | null>(null);
+
+  const handleSort = (key: string) => {
+    let direction: 'asc' | 'desc' = 'asc';
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
   };
 
   // Filter items in real time
@@ -306,11 +323,25 @@ const AdminPage = () => {
     );
   });
 
+  const sortedItems = React.useMemo(() => {
+    if (!sortConfig) return filteredItems;
+    const { key, direction } = sortConfig;
+    return [...filteredItems].sort((a, b) => {
+      let aVal = a[key] ?? '';
+      let bVal = b[key] ?? '';
+      if (typeof aVal === 'string') aVal = aVal.toLowerCase();
+      if (typeof bVal === 'string') bVal = bVal.toLowerCase();
+      if (aVal < bVal) return direction === 'asc' ? -1 : 1;
+      if (aVal > bVal) return direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }, [filteredItems, sortConfig]);
+
   const itemsPerPage = 10;
-  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
-  const paginatedItems = filteredItems.slice(
+  const totalPages = Math.ceil(sortedItems.length / itemsPerPage);
+  const paginatedItems = sortedItems.slice(
     (page - 1) * itemsPerPage,
-    page * itemsPerPage
+    page * itemsPerPage,
   );
 
   return (
@@ -366,9 +397,6 @@ const AdminPage = () => {
                 leftSection={<IconLayoutGrid size={16} />}
               >
                 Кража
-              </Tabs.Tab>
-              <Tabs.Tab value="memory" leftSection={<IconBrain size={16} />}>
-                Воспоминания
               </Tabs.Tab>
               <Tabs.Tab value="users" leftSection={<IconUsers size={16} />}>
                 Пользователи
@@ -479,54 +507,33 @@ const AdminPage = () => {
               <>
                 <Table.Thead style={{ background: '#334155' }}>
                   <Table.Tr>
-                    <Table.Th
-                      style={{
-                        color: '#f59e0b',
-                        borderBottom: '1px solid #475569',
-                      }}
-                    >
-                      ID
-                    </Table.Th>
-                    <Table.Th
-                      style={{
-                        color: '#f59e0b',
-                        borderBottom: '1px solid #475569',
-                      }}
-                    >
-                      Логин
-                    </Table.Th>
-                    <Table.Th
-                      style={{
-                        color: '#f59e0b',
-                        borderBottom: '1px solid #475569',
-                      }}
-                    >
-                      Роль
-                    </Table.Th>
-                    <Table.Th
-                      style={{
-                        color: '#f59e0b',
-                        borderBottom: '1px solid #475569',
-                      }}
-                    >
-                      Статус
-                    </Table.Th>
-                    <Table.Th
-                      style={{
-                        color: '#f59e0b',
-                        borderBottom: '1px solid #475569',
-                      }}
-                    >
-                      Дата регистрации
-                    </Table.Th>
-                    <Table.Th
-                      style={{
-                        color: '#f59e0b',
-                        borderBottom: '1px solid #475569',
-                      }}
-                    >
-                      Последний вход
-                    </Table.Th>
+                    {[
+                      { key: 'id', label: 'ID' },
+                      { key: 'login', label: 'Логин' },
+                      { key: 'role', label: 'Роль' },
+                      { key: 'disabled', label: 'Статус' },
+                      { key: 'createdAt', label: 'Дата регистрации' },
+                      { key: 'lastLoginAt', label: 'Последний вход' },
+                    ].map((col) => (
+                      <Table.Th
+                        key={col.key}
+                        onClick={() => handleSort(col.key)}
+                        style={{
+                          color: '#f59e0b',
+                          borderBottom: '1px solid #475569',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        <Group gap={4}>
+                          {col.label}
+                          {sortConfig?.key === col.key && (
+                            <Text size="xs">
+                              {sortConfig.direction === 'asc' ? '▲' : '▼'}
+                            </Text>
+                          )}
+                        </Group>
+                      </Table.Th>
+                    ))}
                     <Table.Th
                       style={{
                         color: '#f59e0b',
@@ -649,54 +656,40 @@ const AdminPage = () => {
               <>
                 <Table.Thead style={{ background: '#334155' }}>
                   <Table.Tr>
-                    <Table.Th
-                      style={{
-                        color: '#f59e0b',
-                        borderBottom: '1px solid #475569',
-                      }}
-                    >
-                      ID
-                    </Table.Th>
-                    <Table.Th
-                      style={{
-                        color: '#f59e0b',
-                        borderBottom: '1px solid #475569',
-                      }}
-                    >
-                      Название (RU)
-                    </Table.Th>
-                    <Table.Th
-                      style={{
-                        color: '#f59e0b',
-                        borderBottom: '1px solid #475569',
-                      }}
-                    >
-                      Название (ENG)
-                    </Table.Th>
-                    <Table.Th
-                      style={{
-                        color: '#f59e0b',
-                        borderBottom: '1px solid #475569',
-                      }}
-                    >
-                      Опция (RU)
-                    </Table.Th>
-                    <Table.Th
-                      style={{
-                        color: '#f59e0b',
-                        borderBottom: '1px solid #475569',
-                      }}
-                    >
-                      Опция (ENG)
-                    </Table.Th>
-                    <Table.Th
-                      style={{
-                        color: '#f59e0b',
-                        borderBottom: '1px solid #475569',
-                      }}
-                    >
-                      Дискриминатор
-                    </Table.Th>
+                    {[
+                      { key: 'id', label: 'ID' },
+                      { key: 'name_ru', label: 'Название (RU)' },
+                      { key: 'name_eng', label: 'Название (ENG)' },
+                      ...(activeTab !== 'heist'
+                        ? [
+                            { key: 'option_ru', label: 'Опция (RU)' },
+                            { key: 'option_eng', label: 'Опция (ENG)' },
+                          ]
+                        : []),
+                      {
+                        key: activeTab === 'heist' ? 'updatedAt' : 'discriminator',
+                        label: activeTab === 'heist' ? 'Обновлено' : 'Дискриминатор',
+                      },
+                    ].map((col) => (
+                      <Table.Th
+                        key={col.key}
+                        onClick={() => handleSort(col.key)}
+                        style={{
+                          color: '#f59e0b',
+                          borderBottom: '1px solid #475569',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        <Group gap={4}>
+                          {col.label}
+                          {sortConfig?.key === col.key && (
+                            <Text size="xs">
+                              {sortConfig.direction === 'asc' ? '▲' : '▼'}
+                            </Text>
+                          )}
+                        </Group>
+                      </Table.Th>
+                    ))}
                     <Table.Th
                       style={{
                         color: '#f59e0b',
@@ -731,22 +724,34 @@ const AdminPage = () => {
                       >
                         {item.name_eng}
                       </Table.Td>
-                      <Table.Td>{item.option_ru}</Table.Td>
-                      <Table.Td>{item.option_eng}</Table.Td>
+                      {activeTab !== 'heist' && (
+                        <>
+                          <Table.Td>{item.option_ru}</Table.Td>
+                          <Table.Td>{item.option_eng}</Table.Td>
+                        </>
+                      )}
                       <Table.Td>
-                        <Text
-                          size="xs"
-                          px="xs"
-                          py={2}
-                          style={{
-                            background: '#334155',
-                            color: '#f1f5f9',
-                            borderRadius: 4,
-                            display: 'inline-block',
-                          }}
-                        >
-                          {item.discriminator || '-'}
-                        </Text>
+                        {activeTab === 'heist' ? (
+                          <Text size="xs" style={{ color: '#cbd5e1' }}>
+                            {item.updatedAt
+                              ? new Date(item.updatedAt).toLocaleString('ru-RU')
+                              : '-'}
+                          </Text>
+                        ) : (
+                          <Text
+                            size="xs"
+                            px="xs"
+                            py={2}
+                            style={{
+                              background: '#334155',
+                              color: '#f1f5f9',
+                              borderRadius: 4,
+                              display: 'inline-block',
+                            }}
+                          >
+                            {item.discriminator || '-'}
+                          </Text>
+                        )}
                       </Table.Td>
                       <Table.Td>
                         <Group gap="xs" justify="flex-end">
@@ -936,9 +941,10 @@ const AdminPage = () => {
                   label="Название (ENG)"
                   placeholder="Название (ENG)"
                   value={nameEng}
-                  onChange={(e) => setNameEng(e.target.value.replace(/_/g, ' '))}
+                  onChange={(e) =>
+                    setNameEng(e.target.value.replace(/_/g, ' '))
+                  }
                   onBlur={() => setNameEng(cleanGemField(nameEng))}
-                  required
                   styles={{
                     input: {
                       background: '#0f172a',
@@ -948,66 +954,78 @@ const AdminPage = () => {
                     label: { color: '#f1f5f9' },
                   }}
                 />
-                <TextInput
-                  label="Опция (RU)"
-                  placeholder="Option (RU)"
-                  value={optionRu}
-                  onChange={(e) => setOptionRu(e.target.value.replace(/_/g, ' '))}
-                  onBlur={() => setOptionRu(cleanGemField(optionRu))}
-                  required
-                  styles={{
-                    input: {
-                      background: '#0f172a',
-                      color: '#f1f5f9',
-                      border: '1px solid #475569',
-                    },
-                    label: { color: '#f1f5f9' },
-                  }}
-                />
-                <TextInput
-                  label="Опция (ENG)"
-                  placeholder="Option (ENG)"
-                  value={optionEng}
-                  onChange={(e) => setOptionEng(e.target.value.replace(/_/g, ' '))}
-                  onBlur={() => setOptionEng(cleanGemField(optionEng))}
-                  required
-                  styles={{
-                    input: {
-                      background: '#0f172a',
-                      color: '#f1f5f9',
-                      border: '1px solid #475569',
-                    },
-                    label: { color: '#f1f5f9' },
-                  }}
-                />
-                <Select
-                  label="Дискриминатор"
-                  placeholder="Выберите дискриминатор"
-                  data={[
-                    { value: '', label: 'пустой' },
-                    { value: 'alt_x', label: 'alt_x' },
-                    { value: 'alt_y', label: 'alt_y' },
-                    { value: 'alt_z', label: 'alt_z' },
-                  ]}
-                  value={discriminator || ''}
-                  onChange={(value) => setDiscriminator(value || '')}
-                  styles={{
-                    input: {
-                      background: '#0f172a',
-                      color: '#f1f5f9',
-                      border: '1px solid #475569',
-                    },
-                    label: { color: '#f1f5f9' },
-                    dropdown: {
-                      background: '#1e293b',
-                      border: '1px solid #475569',
-                    },
-                    option: {
-                      color: '#f1f5f9',
-                      backgroundColor: 'transparent',
-                    },
-                  }}
-                />
+                {activeTab !== 'heist' && (
+                  <>
+                    <TextInput
+                      label="Опция (RU)"
+                      placeholder="Option (RU)"
+                      value={optionRu}
+                      onChange={(e) =>
+                        setOptionRu(e.target.value.replace(/_/g, ' '))
+                      }
+                      onBlur={() => setOptionRu(cleanGemField(optionRu))}
+                      required
+                      styles={{
+                        input: {
+                          background: '#0f172a',
+                          color: '#f1f5f9',
+                          border: '1px solid #475569',
+                        },
+                        label: { color: '#f1f5f9' },
+                      }}
+                    />
+                    <TextInput
+                      label="Опция (ENG)"
+                      placeholder="Option (ENG)"
+                      value={optionEng}
+                      onChange={(e) =>
+                        setOptionEng(e.target.value.replace(/_/g, ' '))
+                      }
+                      onBlur={() => setOptionEng(cleanGemField(optionEng))}
+                      styles={{
+                        input: {
+                          background: '#0f172a',
+                          color: '#f1f5f9',
+                          border: '1px solid #475569',
+                        },
+                        label: { color: '#f1f5f9' },
+                      }}
+                    />
+                    <Select
+                      label={
+                        <span>
+                          Дискриминатор{' '}
+                          <span style={{ color: '#e03131' }}>*</span>
+                        </span>
+                      }
+                      placeholder="Выберите дискриминатор"
+                      data={[
+                        { value: 'alt_x', label: 'alt_x' },
+                        { value: 'alt_y', label: 'alt_y' },
+                        { value: 'alt_z', label: 'alt_z' },
+                      ]}
+                      value={discriminator || 'alt_x'}
+                      onChange={(value) => setDiscriminator(value || 'alt_x')}
+                      styles={{
+                        input: {
+                          background: '#0f172a',
+                          color: '#f1f5f9',
+                          border: '1px solid #475569',
+                        },
+                        label: { color: '#f1f5f9' },
+                        dropdown: {
+                          background: '#1e293b',
+                          border: '1px solid #475569',
+                        },
+                        option: {
+                          color: '#f1f5f9',
+                          backgroundColor: 'transparent',
+                        },
+                        required: true,
+                      }}
+                    />
+                  </>
+                )}
               </>
             )}
 

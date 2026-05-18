@@ -16,7 +16,7 @@ export interface FetchTradeDetailsDataParams {
   url: string;
 }
 
-export interface GemTradeData {
+export interface ItemTradeData {
   success: boolean;
   name?: string;
   message?: string;
@@ -26,5 +26,5 @@ export interface GemTradeData {
 
 export interface TradeDetailsData {
   success: boolean;
-  result: GemDetailsData[];
+  result: ItemDetailsData[];
 }

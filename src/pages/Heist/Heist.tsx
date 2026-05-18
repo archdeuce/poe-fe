@@ -1,13 +1,12 @@
-import './HeistPage.style.scss';
+import './Heist.style.scss';
 import {
-  FetchGemDataParams,
-  FetchGemTradeDataParams,
+  fetchHeistDataParams,
   FetchTradeDetailsDataParams,
   GemTradeData,
 } from '@/types/api';
 import {
-  fetchHeistData as fetchGemData,
-  fetchHeistTradeData as fetchGemTradeData,
+  fetchHeistData,
+  fetchHeistTradeData,
   fetchTradeDetailsData,
 } from '@/services/api';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -19,34 +18,34 @@ import { useLoading } from '@/context/LoadingContext';
 import PoeDynamicTooltip from '@/components/PoeDynamicTooltip';
 const OcrTextLimit = 50;
 
-const HeistPage = () => {
+const Heist = () => {
   const [isError, setIsError] = useState<boolean>(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [ocrText, setOcrText] = useState<string>('');
-  const [gemName, setGemName] = useState<string>('');
-  const [gemUrl, setGemUrl] = useState<string>('');
-  const [gemDetailsUrl, setGemDetailsUrl] = useState<string>('');
-  const [gemDetailsData, setGemDetailsData] = useState<GemDetailsData[]>([]);
+  const [heistName, setHeistName] = useState<string>('');
+  const [heistUrl, setHeistUrl] = useState<string>('');
+  const [heistDetailsUrl, setHeistDetailsUrl] = useState<string>('');
+  const [heistDetailsData, setHeistDetailsData] = useState<GemDetailsData[]>([]);
   const [isNeedOpenUrl, setlsNeedOpenUrl] = useState<boolean>(false);
   const [isNeedPriceCheck, setlsNeedPriceCheck] = useState<boolean>(false);
   const [selectedLanguage, setSelectedLanguage] = useState<string>(
     LANGUAGES.RUS,
   );
-  const gemTradeLinkRef = useRef<HTMLAnchorElement>(null);
+  const heistTradeLinkRef = useRef<HTMLAnchorElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const { setLoading } = useLoading();
   const resetState = useCallback(() => {
     setOcrText('');
-    setGemName('');
-    setGemUrl('');
-    setGemDetailsUrl('');
-    setGemDetailsData([]);
+    setHeistName('');
+    setHeistUrl('');
+    setHeistDetailsUrl('');
+    setHeistDetailsData([]);
   }, []);
 
   const resetStatePartial = () => {
-    setGemUrl('');
-    setGemDetailsUrl('');
-    setGemDetailsData([]);
+    setHeistUrl('');
+    setHeistDetailsUrl('');
+    setHeistDetailsData([]);
   };
 
   const doOCR = useCallback(async () => {
@@ -73,43 +72,39 @@ const HeistPage = () => {
     }
   }, [imageUrl, selectedLanguage, setLoading]);
 
-  const getGemData = async (
-    ocrText: FetchGemDataParams['ocrText'],
-    language: FetchGemDataParams['language'],
+  const getHeistData = async (
+    ocrText: string,
+    language: string,
   ) => {
     setLoading(true);
     try {
-      const data = await fetchGemData({ ocrText, language });
+      const data = await fetchHeistData({ ocrText, language });
       const { success, name } = data || {};
       if (success) {
         setIsError(false);
-        setGemName(name || '');
+        setHeistName(name || '');
       } else {
         setIsError(true);
-        setGemName('Сервер не распознал название предмета.');
+        setHeistName('Сервер не распознал название предмета.');
       }
     } catch (error) {
-      console.error('Fetch gem data error:', error);
+      console.error('Fetch heist data error:', error);
       setIsError(true);
-      setGemName('Ошибка при запросе данных.');
+      setHeistName('Ошибка при запросе данных.');
     } finally {
       setLoading(false);
     }
   };
 
-  const getGemTradeData = async (
-    args: FetchGemTradeDataParams,
+  const getHeistTradeData = async (
+    name: string,
+    language: string,
   ): Promise<GemTradeData | null> => {
     setLoading(true);
     try {
-      const { name, language, levelMin, levelMax, quality, corrupted } = args;
-      const data = await fetchGemTradeData({
+      const data = await fetchHeistTradeData({
         name,
         language,
-        levelMin,
-        levelMax,
-        quality,
-        corrupted,
       });
       const { success } = data || {};
       if (success) {
@@ -120,7 +115,7 @@ const HeistPage = () => {
         return null;
       }
     } catch (error) {
-      console.error('Fetch gem trade data error:', error);
+      console.error('Fetch heist trade data error:', error);
       setIsError(true);
       return null;
     } finally {
@@ -128,9 +123,9 @@ const HeistPage = () => {
     }
   };
 
-  const processDefaultGem = (data: GemTradeData | null) => {
+  const processDefaultHeist = (data: GemTradeData | null) => {
     if (!data) {
-      setGemUrl(
+      setHeistUrl(
         selectedLanguage === LANGUAGES.RUS
           ? 'https://ru.pathofexile.com/trade/'
           : 'https://www.pathofexile.com/trade/',
@@ -138,16 +133,16 @@ const HeistPage = () => {
       return;
     }
     const { url, detailsUrl } = data;
-    setGemUrl(url || '');
-    setGemDetailsUrl(detailsUrl || '');
+    setHeistUrl(url || '');
+    setHeistDetailsUrl(detailsUrl || '');
   };
 
   const getTradeDetailsData = async (
-    args: FetchTradeDetailsDataParams,
+    url: string,
   ): Promise<GemDetailsData[] | null> => {
     setLoading(true);
     try {
-      const data = await fetchTradeDetailsData(args);
+      const data = await fetchTradeDetailsData({ url });
       const { success, result } = data || { success: false, result: [] };
       if (success) {
         return result;
@@ -168,122 +163,57 @@ const HeistPage = () => {
     setlsNeedPriceCheck(localStorage.getItem('checkPrice') === 'true');
   }, []);
 
-  // Сканирование картинки если есть
   useEffect(() => {
     if (imageUrl) {
       doOCR();
     }
   }, [imageUrl, doOCR]);
 
-  // Запрос на API для уточнения названия предмета
   useEffect(() => {
     if (ocrText?.trim().length) {
       resetStatePartial();
       setIsError(false);
-      getGemData(ocrText, selectedLanguage);
+      getHeistData(ocrText, selectedLanguage);
     }
   }, [ocrText]);
 
-  // Запрос ссылки через API когда известное название предмета
   useEffect(() => {
-    if (gemName?.trim().length && !isError) {
+    if (heistName?.trim().length && !isError) {
       (async () => {
-        const data = await getGemTradeData({
-          name: gemName,
-          language: selectedLanguage,
-          levelMin: 1,
-          levelMax: 19,
-        });
-        processDefaultGem(data);
+        const data = await getHeistTradeData(heistName, selectedLanguage);
+        processDefaultHeist(data);
       })();
     }
-  }, [gemName]);
+  }, [heistName]);
 
-  // Получение данных для таблиц с ценами
   useEffect(() => {
-    if (isNeedPriceCheck && !isError && gemDetailsUrl?.length) {
-      // Проверка цен на камни 1+/0+
+    if (isNeedPriceCheck && !isError && heistDetailsUrl?.length) {
       (async () => {
         try {
-          const data = await getTradeDetailsData({
-            url: gemDetailsUrl,
-          });
+          const data = await getTradeDetailsData(heistDetailsUrl);
           if (Array.isArray(data)) {
-            setGemDetailsData(data);
+            setHeistDetailsData(data);
           }
         } catch (error) {
-          console.log('Проверка цен на камни 1/0+ не удалась.');
-        }
-      })();
-
-      // Проверка цен на камни 20/0+
-      (async () => {
-        try {
-          const ulrData = await getGemTradeData({
-            name: gemName,
-            language: selectedLanguage,
-            levelMin: 20,
-            levelMax: 20,
-            corrupted: false,
-          });
-          const { detailsUrl } = ulrData || {};
-          if (!detailsUrl) {
-            return;
-          }
-          const data = await getTradeDetailsData({
-            url: detailsUrl,
-          });
-          if (Array.isArray(data)) {
-            setGemDetailsData((prev) => [...prev, ...data]);
-          }
-        } catch (error) {
-          console.log('Проверка цен на камни 20/0+ не удалась.');
-        }
-      })();
-
-      // Проверка цен на камни 21/20+
-      (async () => {
-        try {
-          const ulrData = await getGemTradeData({
-            name: gemName,
-            language: selectedLanguage,
-            levelMin: 21,
-            quality: 20,
-            corrupted: true,
-          });
-          const { detailsUrl } = ulrData || {};
-          if (!detailsUrl) {
-            return;
-          }
-          const data = await getTradeDetailsData({
-            url: detailsUrl,
-          });
-          if (Array.isArray(data)) {
-            setGemDetailsData((prev) => [...prev, ...data]);
-          }
-        } catch (error) {
-          console.log('Проверка цен на камни 21/20+ не удалась.');
+          console.log('Проверка цен не удалась.');
         }
       })();
     }
-    return () => {};
-  }, [gemDetailsUrl, isNeedPriceCheck]);
+  }, [heistDetailsUrl, isNeedPriceCheck]);
 
-  // Автоскролл вниз при появлении новых данных
   useEffect(() => {
-    if (ocrText || gemName || gemDetailsData.length > 0) {
+    if (ocrText || heistName || heistDetailsData.length > 0) {
       bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [ocrText, gemName, gemDetailsData]);
+  }, [ocrText, heistName, heistDetailsData]);
 
-  // Обработчик автооткрытия ссылок
   useEffect(() => {
-    if (isNeedOpenUrl && gemUrl && gemTradeLinkRef.current) {
+    if (isNeedOpenUrl && heistUrl && heistTradeLinkRef.current) {
       setTimeout(() => {
-        gemTradeLinkRef.current?.click();
+        heistTradeLinkRef.current?.click();
       }, 500);
     }
-  }, [gemUrl, gemTradeLinkRef]);
+  }, [heistUrl, heistTradeLinkRef]);
 
   const handleDrop = useCallback(
     (file: File) => {
@@ -321,31 +251,31 @@ const HeistPage = () => {
   );
 
   const rendeServerMainData = () => {
-    const mainItem = gemDetailsData[0]?.item;
+    const mainItem = heistDetailsData[0]?.item;
     return (
       <section>
-        {gemName && (
+        {heistName && (
           <p className="text-output">
             <span>Название предмета:</span>
             {mainItem ? (
               <PoeDynamicTooltip item={mainItem}>
-                <span className="poe-tooltip-trigger">{gemName}</span>
+                <span className="poe-tooltip-trigger">{heistName}</span>
               </PoeDynamicTooltip>
             ) : (
-              gemName
+              heistName
             )}
           </p>
         )}
-        {gemUrl && (
+        {heistUrl && (
           <p className="text-output">
             <span>Ссылка на торговый сайт:</span>
             <a
-              id="gem-trade-link"
+              id="heist-trade-link"
               target="_blank"
-              href={gemUrl}
-              ref={gemTradeLinkRef}
+              href={heistUrl}
+              ref={heistTradeLinkRef}
             >
-              {gemUrl}
+              {heistUrl}
             </a>
           </p>
         )}
@@ -353,35 +283,25 @@ const HeistPage = () => {
     );
   };
 
-  const renderGemDataTable = (gemData: GemDetailsData[]) => (
-    <table className="gem-price-table">
+  const renderDataTable = (heistData: GemDetailsData[]) => (
+    <table className="heist-price-table">
       <thead>
         <tr>
-          <th>Уровень</th>
-          <th>Качество</th>
+          <th>Предмет</th>
           <th>Цена</th>
         </tr>
       </thead>
       <tbody>
-        {gemData?.map(({ listing, item }) => {
-          const gemLevel =
-            item?.properties
-              ?.find(({ name }) => name === 'Уровень' || name === 'Level')
-              ?.values[0][0].substring(0, 2) || 1;
-          const gemQuality =
-            item?.properties?.find(
-              ({ name }) => name === 'Качество' || name === 'Quality',
-            )?.values[0][0] || 0;
+        {heistData?.map(({ listing, item }) => {
           const { amount, currency } = listing?.price;
           const { indexed } = listing;
           return (
-            <tr key={`gem-${indexed}`}>
+            <tr key={`heist-${indexed}`}>
               <td>
                 <PoeDynamicTooltip item={item}>
-                  <span className="poe-tooltip-trigger">{gemLevel}</span>
+                  <span className="poe-tooltip-trigger">{item.name}</span>
                 </PoeDynamicTooltip>
               </td>
-              <td>{gemQuality || 0}</td>
               <td>
                 <div className="currency-container">
                   <span>{amount}</span>
@@ -405,8 +325,8 @@ const HeistPage = () => {
     return (
       <section>
         {isNeedPriceCheck &&
-          gemDetailsData?.length > 0 &&
-          renderGemDataTable(gemDetailsData)}
+          heistDetailsData?.length > 0 &&
+          renderDataTable(heistDetailsData)}
       </section>
     );
   };
@@ -421,4 +341,4 @@ const HeistPage = () => {
     </>
   );
 };
-export default HeistPage;
+export default Heist;

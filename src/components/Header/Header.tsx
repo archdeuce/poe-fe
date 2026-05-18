@@ -46,9 +46,6 @@ const Header = () => {
               <Link to={ROUTES.HEIST.URL}>{ROUTES.HEIST.NAME}</Link>
             </li>
             <li className="header-menu-item">
-              <Link to={ROUTES.MEMORY.URL}>{ROUTES.MEMORY.NAME}</Link>
-            </li>
-            <li className="header-menu-item">
               <Link to={ROUTES.SETTINGS.URL}>{ROUTES.SETTINGS.NAME}</Link>
             </li>
           </>

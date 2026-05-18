@@ -1,14 +1,13 @@
 import { Route, Routes, Navigate } from 'react-router-dom';
 
-import Home from './pages/Home';
+import Home from './pages/Home/Home';
 import Layout from './components/Layout';
 import Loader from './components/Loader';
-import LabPage from './pages/Lab';
-import HeistPage from './pages/Heist';
-import MemoryPage from './pages/Memory';
-import SettingsPage from './pages/Settings';
-import LoginPage from './pages/Login';
-import AdminPage from './pages/Admin';
+import Lab from './pages/Lab/Lab';
+import Heist from './pages/Heist/Heist';
+import Settings from './pages/Settings/Settings';
+import Login from './pages/Login/Login';
+import AdminPage from './pages/Admin/Admin';
 import { ROUTES } from './utils/constants';
 
 interface ProtectedRouteProps {
@@ -24,7 +23,10 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
     return <Navigate to={ROUTES.LOGIN.URL} replace />;
   }
 
-  if (requiredRole && (role || '').toLowerCase() !== requiredRole.toLowerCase()) {
+  if (
+    requiredRole &&
+    (role || '').toLowerCase() !== requiredRole.toLowerCase()
+  ) {
     return <Navigate to={ROUTES.MAIN.URL} replace />;
   }
 
@@ -49,7 +51,7 @@ const App = () => {
           element={
             <Layout>
               <ProtectedRoute>
-                <LabPage />
+                <Lab />
               </ProtectedRoute>
             </Layout>
           }
@@ -59,17 +61,7 @@ const App = () => {
           element={
             <Layout>
               <ProtectedRoute>
-                <HeistPage />
-              </ProtectedRoute>
-            </Layout>
-          }
-        />
-        <Route
-          path={ROUTES.MEMORY.URL}
-          element={
-            <Layout>
-              <ProtectedRoute>
-                <MemoryPage />
+                <Heist />
               </ProtectedRoute>
             </Layout>
           }
@@ -79,7 +71,7 @@ const App = () => {
           element={
             <Layout>
               <ProtectedRoute>
-                <SettingsPage />
+                <Settings />
               </ProtectedRoute>
             </Layout>
           }
@@ -88,7 +80,7 @@ const App = () => {
           path={ROUTES.LOGIN.URL}
           element={
             <Layout>
-              <LoginPage />
+              <Login />
             </Layout>
           }
         />

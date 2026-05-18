@@ -2,7 +2,7 @@ import {
   FetchGemDataParams,
   FetchGemTradeDataParams,
   FetchTradeDetailsDataParams,
-  GemTradeData,
+  ItemTradeData,
   TradeDetailsData,
 } from '@/types/api';
 
@@ -12,7 +12,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 const getHeaders = () => {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    'Accept': 'application/json, text/plain, */*',
+    Accept: 'application/json, text/plain, */*',
   };
   const token = localStorage.getItem('token');
   if (token) {
@@ -33,13 +33,13 @@ export const fetchOnlineData = async (): Promise<{ online: number } | null> => {
 
 export const fetchGemData = async (
   params: FetchGemDataParams,
-): Promise<GemTradeData | null> => {
+): Promise<ItemTradeData | null> => {
   try {
     const { ocrText, language } = params;
     const response = await fetch(`${API_BASE_URL}/gem`, {
       method: 'POST',
       headers: {
-        'Accept': 'application/json, text/plain, */*',
+        Accept: 'application/json, text/plain, */*',
         'Content-Type': 'application/json;charset=utf-8',
       },
       body: JSON.stringify({ ocrText, language }),
@@ -52,7 +52,7 @@ export const fetchGemData = async (
 
 export const fetchGemTradeData = async (
   params: FetchGemTradeDataParams,
-): Promise<GemTradeData | null> => {
+): Promise<ItemTradeData | null> => {
   try {
     const {
       name,
@@ -66,7 +66,7 @@ export const fetchGemTradeData = async (
     const response = await fetch(`${API_BASE_URL}/gem/trade`, {
       method: 'POST',
       headers: {
-        'Accept': 'application/json, text/plain, */*',
+        Accept: 'application/json, text/plain, */*',
         'Content-Type': 'application/json;charset=utf-8',
       },
       body: JSON.stringify({
@@ -92,7 +92,7 @@ export const fetchTradeDetailsData = async (
     const response = await fetch(`${API_BASE_URL}/trade/details`, {
       method: 'POST',
       headers: {
-        'Accept': 'application/json, text/plain, */*',
+        Accept: 'application/json, text/plain, */*',
         'Content-Type': 'application/json;charset=utf-8',
       },
       body: JSON.stringify({ url }),
@@ -105,13 +105,13 @@ export const fetchTradeDetailsData = async (
 
 export const fetchHeistData = async (
   params: FetchGemDataParams,
-): Promise<GemTradeData | null> => {
+): Promise<ItemTradeData | null> => {
   try {
     const { ocrText, language } = params;
     const response = await fetch(`${API_BASE_URL}/heist`, {
       method: 'POST',
       headers: {
-        'Accept': 'application/json, text/plain, */*',
+        Accept: 'application/json, text/plain, */*',
         'Content-Type': 'application/json;charset=utf-8',
       },
       body: JSON.stringify({ ocrText, language }),
@@ -124,83 +124,19 @@ export const fetchHeistData = async (
 
 export const fetchHeistTradeData = async (
   params: FetchGemTradeDataParams,
-): Promise<GemTradeData | null> => {
+): Promise<ItemTradeData | null> => {
   try {
-    const {
-      name,
-      language,
-      levelMin = 1,
-      levelMax = 21,
-      quality = 0,
-      corrupted = false,
-    } = params;
+    const { name, language } = params;
 
     const response = await fetch(`${API_BASE_URL}/heist/trade`, {
       method: 'POST',
       headers: {
-        'Accept': 'application/json, text/plain, */*',
+        Accept: 'application/json, text/plain, */*',
         'Content-Type': 'application/json;charset=utf-8',
       },
       body: JSON.stringify({
         name,
         language,
-        levelMin,
-        levelMax,
-        quality,
-        corrupted,
-      }),
-    });
-    return await response.json();
-  } catch (error) {
-    return null;
-  }
-};
-
-export const fetchMemoryData = async (
-  params: FetchGemDataParams,
-): Promise<GemTradeData | null> => {
-  try {
-    const { ocrText, language } = params;
-    const response = await fetch(`${API_BASE_URL}/memory`, {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json, text/plain, */*',
-        'Content-Type': 'application/json;charset=utf-8',
-      },
-      body: JSON.stringify({ ocrText, language }),
-    });
-    return await response.json();
-  } catch (error) {
-    return null;
-  }
-};
-
-export const fetchMemoryTradeData = async (
-  params: FetchGemTradeDataParams,
-): Promise<GemTradeData | null> => {
-  try {
-    const {
-      name,
-      language,
-      levelMin = 1,
-      levelMax = 21,
-      quality = 0,
-      corrupted = false,
-    } = params;
-
-    const response = await fetch(`${API_BASE_URL}/memory/trade`, {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json, text/plain, */*',
-        'Content-Type': 'application/json;charset=utf-8',
-      },
-      body: JSON.stringify({
-        name,
-        language,
-        levelMin,
-        levelMax,
-        quality,
-        corrupted,
       }),
     });
     return await response.json();

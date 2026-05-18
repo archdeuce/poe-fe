@@ -150,11 +150,13 @@ ul {
   margin: 1rem 0;
 }
 
-.gem-price-table {
+.heist-price-table {
   min-width: 20rem;
-  border: 1px solid;
+  max-width: 30rem;
+  border: 1px solid #444;
   border-collapse: collapse;
-  text-align: right;
+  text-align: left;
+  font-size: 0.8rem;
 
   thead {
     background-color: $menu-bg-color;
@@ -169,22 +171,25 @@ ul {
   th {
     border-bottom: 1px solid #fff;
     color: $title-text-color;
-    padding-right: 0.5rem;
+    padding: 0.4rem;
+    font-size: 0.9rem;
+    font-weight: bold;
   }
 
   td {
-    flex-direction: row;
-    padding-right: 0.5rem;
+    padding: 0.4rem;
 
     .currency-container {
       display: inline-flex;
+      align-items: center;
 
       span {
         padding-right: 0.2rem;
       }
 
       img {
-        width: 1.6rem;
+        width: 1.2rem;
+        height: 1.2rem;
       }
     }
   }
