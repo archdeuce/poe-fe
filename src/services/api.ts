@@ -38,10 +38,7 @@ export const fetchGemData = async (
     const { ocrText, language } = params;
     const response = await fetch(`${API_BASE_URL}/gem`, {
       method: 'POST',
-      headers: {
-        Accept: 'application/json, text/plain, */*',
-        'Content-Type': 'application/json;charset=utf-8',
-      },
+      headers: getHeaders(),
       body: JSON.stringify({ ocrText, language }),
     });
     return await response.json();
@@ -65,10 +62,7 @@ export const fetchGemTradeData = async (
 
     const response = await fetch(`${API_BASE_URL}/gem/trade`, {
       method: 'POST',
-      headers: {
-        Accept: 'application/json, text/plain, */*',
-        'Content-Type': 'application/json;charset=utf-8',
-      },
+      headers: getHeaders(),
       body: JSON.stringify({
         name,
         language,
@@ -91,10 +85,7 @@ export const fetchTradeDetailsData = async (
     const { url } = params;
     const response = await fetch(`${API_BASE_URL}/trade/details`, {
       method: 'POST',
-      headers: {
-        Accept: 'application/json, text/plain, */*',
-        'Content-Type': 'application/json;charset=utf-8',
-      },
+      headers: getHeaders(),
       body: JSON.stringify({ url }),
     });
     return await response.json();
@@ -110,10 +101,7 @@ export const fetchHeistData = async (
     const { ocrText, language } = params;
     const response = await fetch(`${API_BASE_URL}/heist`, {
       method: 'POST',
-      headers: {
-        Accept: 'application/json, text/plain, */*',
-        'Content-Type': 'application/json;charset=utf-8',
-      },
+      headers: getHeaders(),
       body: JSON.stringify({ ocrText, language }),
     });
     return await response.json();
@@ -130,10 +118,7 @@ export const fetchHeistTradeData = async (
 
     const response = await fetch(`${API_BASE_URL}/heist/trade`, {
       method: 'POST',
-      headers: {
-        Accept: 'application/json, text/plain, */*',
-        'Content-Type': 'application/json;charset=utf-8',
-      },
+      headers: getHeaders(),
       body: JSON.stringify({
         name,
         language,
