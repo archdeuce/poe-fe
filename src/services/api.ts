@@ -188,6 +188,15 @@ export const usersApi = {
     return response;
   },
 
+  updateProfile: async (payload: any) => {
+    const response = await fetch(`${API_BASE_URL}/users/profile/update`, {
+      method: 'PUT',
+      headers: getHeaders(),
+      body: JSON.stringify(payload),
+    });
+    return response;
+  },
+
   updateUser: async (id: number, payload: any) => {
     const response = await fetch(`${API_BASE_URL}/users/${id}`, {
       method: 'PUT',
