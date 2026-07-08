@@ -217,7 +217,7 @@ const Heist = () => {
 
   const renderScreenshot = () => (
     <section>
-      <h1>Загрузка скриншота</h1>
+      {/* <h1>Загрузка скриншота</h1> */}
       <DropZone onDrop={handleDrop} />
       {imageUrl && (
         <div className="image-preview">
@@ -324,6 +324,7 @@ const Heist = () => {
 
   return (
     <>
+      <h1>Оценка уникальных предметов</h1>
       {renderScreenshot()}
       {rendeOcrData()}
       {rendeServerMainData()}

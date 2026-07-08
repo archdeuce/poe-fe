@@ -295,7 +295,7 @@ const Lab = () => {
 
   const renderScreenshot = () => (
     <section>
-      <h1>Загрузка скриншота</h1>
+      {/* <h1>Загрузка скриншота</h1> */}
       <DropZone onDrop={handleDrop} />
       {imageUrl && (
         <div className="image-preview">
@@ -413,6 +413,7 @@ const Lab = () => {
 
   return (
     <>
+      <h1>Оценка камней умений</h1>
       {renderScreenshot()}
       {rendeOcrData()}
       {rendeServerMainData()}
